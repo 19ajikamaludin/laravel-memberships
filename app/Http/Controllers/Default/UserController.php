@@ -15,7 +15,6 @@ class UserController extends Controller
         $request->user()->allow('view-user', true);
 
         $query = User::query()
-            ->where('type', null)
             ->with(['role']);
 
         if ($request->q) {
@@ -53,7 +52,7 @@ class UserController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . $user->id,
+            'email' => 'required|email|unique:users,email,'.$user->id,
             'password' => 'nullable|string|max:255',
         ]);
 
@@ -87,7 +86,6 @@ class UserController extends Controller
         }
 
         $user->delete();
-
 
         return redirect()->route('user.index')
             ->with('message', ['type' => 'success', 'message' => 'Item has been deleted']);

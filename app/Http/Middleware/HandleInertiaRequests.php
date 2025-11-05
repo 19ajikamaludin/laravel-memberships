@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Constants\MenuConstant;
+use App\Models\Default\Permission;
 use App\Models\Default\Setting;
 use App\Services\UserJwtService;
 use Illuminate\Http\Request;
@@ -33,20 +34,29 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+        $user = $request->user() ? $request->user()->load(['role.permissions']) : $request->user();
+
+        if ($user != null && $user->role == null) {
+            $user = $user->toArray();
+            $user['role'] = [
+                'permissions' => Permission::all(),
+            ];
+        }
+
         return array_merge(parent::share($request), [
             'auth' => [
-                'user' => $request->user() ? $request->user()->load(['role.permissions']) : $request->user(),
+                'user' => $user,
                 'login_at' => Session::get('user_login_at', ''),
                 'jwt_token' => UserJwtService::getActiveToken(),
                 'jwt_prefix' => UserJwtService::KEYPREFIX,
             ],
             'flash' => [
-                'message' => fn() => Session::get('message'),
-                'data' => fn() => Session::get('data'),
+                'message' => fn () => Session::get('message'),
+                'data' => fn () => Session::get('data'),
             ],
             'app' => Setting::getByKeys(['app_name', 'app_logo']),
             'default_join_fee' => Setting::getByKey('join_fee'),
-            'navigation' => MenuConstant::handle($request->user())
+            'navigation' => MenuConstant::handle($request->user()),
         ]);
     }
 }

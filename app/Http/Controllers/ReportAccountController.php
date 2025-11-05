@@ -37,12 +37,12 @@ class ReportAccountController extends Controller
         $expense = 0;
         foreach ($accounts as $account) {
             $amount = $account->items()
-                ->where('transaction_date', '>=', $startDate)
-                ->where('transaction_date', '<=', $endDate)
+                ->where('transaction_date', '>=', $startDate->format('Y-m-d'))
+                ->where('transaction_date', '<=', $endDate->format('Y-m-d'))
                 ->where('type', Journal::TYPE_IN)
                 ->sum('amount');
 
-            $name = 'Pemasukan ' . $account->name;
+            $name = 'Pemasukan '.$account->name;
             $income += $amount;
             $data[] = ['name' => $name, 'amount' => $amount, 'font' => 'font-light'];
         }
@@ -51,12 +51,12 @@ class ReportAccountController extends Controller
         foreach ($accounts as $account) {
 
             $amount = $account->items()
-                ->where('transaction_date', '>=', $startDate)
-                ->where('transaction_date', '<=', $endDate)
+                ->where('transaction_date', '>=', $startDate->format('Y-m-d'))
+                ->where('transaction_date', '<=', $endDate->format('Y-m-d'))
                 ->where('type', Journal::TYPE_OUT)
                 ->sum('amount');
 
-            $name = 'Pengeluaran ' . $account->name;
+            $name = 'Pengeluaran '.$account->name;
             $expense += $amount;
             $data[] = ['name' => $name, 'amount' => $amount, 'font' => 'font-light'];
         }
